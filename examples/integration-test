@@ -32,12 +32,12 @@ fi
 
 echo ""
 echo "Checking status, should exit if pio is not running."
-pio status
-pio app new handmade || true
+pio-docker status
+pio-docker app new handmade || true
 
 echo ""
 echo "Checking to see if handmade app exists, should exit if not."
-pio app show handmade
+pio-docker app show handmade
 
 echo ""
 echo "Moving engine.json to user-engine.json if it exists"
@@ -49,22 +49,22 @@ cp examples/handmade-engine.json engine.json
 
 echo ""
 echo "Deleting handmade app data since the test is date dependent"
-pio app data-delete handmade -f
+pio-docker app data-delete handmade -f
 
 echo ""
 echo "Importing data for integration test"
 # get the access_key from pio app list
-ACCESS_KEY=`pio app show handmade | grep Key | cut -f 7 -d ' '`
+ACCESS_KEY=`pio-docker app show handmade | grep Key | cut -f 7 -d ' '`
 echo -n "Access key: "
 echo $ACCESS_KEY
 python3 examples/import_handmade.py --access_key $ACCESS_KEY --file data/sample-handmade-data.txt
 
 echo ""
 echo "Building and delpoying model"
-pio build --clean
-pio train  -- --driver-memory 4g --executor-memory 4g
+pio-docker build --clean --verbose
+pio-docker train  -- --driver-memory 4g --executor-memory 4g
 echo "Model will remain deployed after this test"
-nohup pio deploy > deploy.out &
+nohup pio-docker deploy > deploy.out &
 echo "Waiting 30 seconds for the server to start"
 sleep 30
 
